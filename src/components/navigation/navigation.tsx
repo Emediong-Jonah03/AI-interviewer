@@ -2,23 +2,23 @@ import { useEffect, useState } from "react";
 import { IoFlash, IoChatbox, IoMoon, IoClose } from "react-icons/io5";
 import { GoSignOut } from "react-icons/go";
 import { GiHamburgerMenu, GiSun } from "react-icons/gi";
+import type { ChatSession } from "../../App";
+import { Link } from "react-router-dom";
 
-const recents = [
-  { message: "How to make a chatbot?" },
-  { message: "What is React?" },
-  { message: "What is Tailwind CSS?" },
-  { message: "What is TypeScript?" },
-  { message: "What is JavaScript?" },
-  { message: "What is Python?" },
-  { message: "What is Java?" },
-  { message: "What is C++?" },
-  { message: "Creating a responsive navbar" },
-  { message: "Dark mode implementation" },
-  { message: "State management tips" },
-];
+interface NavigationProps {
+  chatSessions: ChatSession[]; 
+  currentSessionId: number | null; 
+  onNewChat: () => void; 
+  onSelectChat: (sessionId: number) => void; 
+}
 
-export default function Navigation() {
-  const [theme, setTheme] = useState("dark"); // Default to dark mode
+export default function Navigation({
+  chatSessions = [],  
+  currentSessionId = null,  
+  onNewChat = () => {},  // Default no-op function
+  onSelectChat = () => {},  // Default no-op function
+}: NavigationProps) {
+  const [theme, setTheme] = useState("dark");
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -30,7 +30,6 @@ export default function Navigation() {
     }
   }, [theme]);
 
-  // Auto-open on desktop, closed on mobile
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 640) {
@@ -44,6 +43,16 @@ export default function Navigation() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const handleNewChatClick = () => {
+    setIsOpen(false);
+    onNewChat();
+  };
+
+  const handleChatClick = (sessionId: number) => {
+    setIsOpen(false);
+    onSelectChat(sessionId);
+  };
 
   return (
     <>
@@ -80,19 +89,19 @@ export default function Navigation() {
       >
         {/* Header */}
         <section className="flex flex-col mb-7">
-          <div className="flex justify-between items-center ml-9 mb-7 gap-3">
-            <div className="flex items-end gap-4 pl-10">
-              <p className="text-xl font-bold truncate">AI ChatBot</p>
+          <div className="flex justify-between items-center ml-9 sm:ml-1 mb-7 gap-3">
+            <div className="flex items-end gap-4 pl-10 sm:pl-3">
+              <p className="text-xl font-bold truncate">AI Interviewer</p>
               <IoFlash className="w-9 h-9 bg-accent text-white p-2 rounded-lg shrink-0" />
             </div>
           </div>
 
-          <button
-            onClick={() => setIsOpen(false)}
+          <Link to="/"
+            onClick={handleNewChatClick}
             className="bg-accent text-white px-4 py-2.5 w-full cursor-pointer rounded-lg hover:bg-accent/90 transition font-medium"
           >
             + New Chat
-          </button>
+          </Link>
         </section>
 
         {/* Recent Chats - scrollable */}
@@ -102,18 +111,50 @@ export default function Navigation() {
           </p>
 
           <div className="space-y-1.5">
-            {recents.map((r, index) => (
-              <div
-                key={index}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center space-x-2.5 py-2.5 px-3 rounded-lg hover:bg-hover cursor-pointer transition group"
-              >
-                <IoChatbox className="w-4 h-4 text-secondary shrink-0 group-hover:text-text-muted transition" />
-                <p className="text-sm truncate text-text-muted group-hover:text-text transition">
-                  {r.message}
-                </p>
-              </div>
-            ))}
+            {!chatSessions || chatSessions.length === 0 ? (
+              <p className="text-sm text-text-muted/60 px-3 py-2">
+                No conversations yet
+              </p>
+            ) : (
+              chatSessions
+                .slice()
+                .reverse()
+                .map((session) => {
+                  // Get the first user message as preview, or use title
+                  const preview =
+                    session.messages.find((msg) => msg.type === "user")?.text ||
+                    session.title;
+
+                  return (
+                    <div
+                      key={session.id}
+                      onClick={() => handleChatClick(session.id)}
+                      className={`flex items-center space-x-2.5 py-2.5 px-3 rounded-lg hover:bg-hover cursor-pointer transition group ${
+                        currentSessionId === session.id
+                          ? "bg-hover border-l-2 border-accent"
+                          : ""
+                      }`}
+                    >
+                      <IoChatbox
+                        className={`w-4 h-4 shrink-0 transition ${
+                          currentSessionId === session.id
+                            ? "text-accent"
+                            : "text-secondary group-hover:text-text-muted"
+                        }`}
+                      />
+                      <p
+                        className={`text-sm truncate transition ${
+                          currentSessionId === session.id
+                            ? "text-text font-medium"
+                            : "text-text-muted group-hover:text-text"
+                        }`}
+                      >
+                        {preview}
+                      </p>
+                    </div>
+                  );
+                })
+            )}
           </div>
         </section>
 
@@ -124,14 +165,18 @@ export default function Navigation() {
               <div className="w-8 h-8 rounded-full bg-avatar flex items-center justify-center text-sm font-bold text-gray-800">
                 AT
               </div>
-              <p className="font-medium truncate text-sm">Alex Tom</p>
+              <p className="font-medium truncate text-sm">Emediong Jonah</p>
             </div>
             <button
               onClick={() => setTheme(theme === "light" ? "dark" : "light")}
               className="hover:bg-hover p-2 rounded-lg transition shrink-0"
               title="Toggle theme"
             >
-              {theme === 'light' ? <IoMoon className="w-5 h-5 text-secondary hover:text-text-muted transition" /> : <GiSun className="w-5 h-5 text-secondary hover:text-text-muted transition" />}
+              {theme === "light" ? (
+                <IoMoon className="w-5 h-5 text-secondary hover:text-text-muted transition" />
+              ) : (
+                <GiSun className="w-5 h-5 text-secondary hover:text-text-muted transition" />
+              )}
             </button>
           </div>
 

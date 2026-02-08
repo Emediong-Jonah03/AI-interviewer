@@ -5,7 +5,7 @@
   --color-bg: rgb(250 250 250);
   --color-surface: rgb(255 255 255);
   --color-text: rgb(17 24 39);
-  --color-text-muted: rgb(107 114 128);
+  --color-text-muted: rgb(36, 37, 37);
   --color-primary: rgb(0 145 255);
   --color-secondary: rgb(139 148 158);
   --color-accent: rgb(0 145 255);
@@ -22,9 +22,10 @@
   }
   
   .dark {
+     --color-bg: rgb(184, 180, 180);
     /* DARK MODE - AI Chat Interface Colors */
-    --color-bg: rgb(10 12 16);           /* Main chat background - darkest */
-    --color-surface: rgb(13 17 23);       /* Sidebar background */
+    --color-bg: rgb(25, 28, 36);           /* Main chat background - darkest */
+    --color-surface: rgb(16, 20, 26);       /* Sidebar background */
     --color-text: rgb(255 255 255);       /* Primary text - pure white */
     --color-text-muted: rgb(139 148 158); /* Secondary text - muted gray */
     --color-text-assistant: rgb(201 209 217); /* Assistant response text */

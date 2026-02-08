@@ -1,18 +1,19 @@
 import { useState } from "react";
-import { IoSend, IoAttach, IoMic } from "react-icons/io5";
+import { IoSend } from "react-icons/io5";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
+  isVisible: boolean; // Changed Boolean to boolean
 }
 
-function ChatInput({ onSendMessage }: ChatInputProps) {
-  const [message, setMessage] = useState("");
+function ChatInput({ onSendMessage, isVisible }: ChatInputProps) {
+  const [messageText, setMessageText] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim()) {
-      onSendMessage(message);
-      setMessage("");
+    if (messageText.trim()) {
+      onSendMessage(messageText.trim());
+      setMessageText("");
     }
   };
 
@@ -22,6 +23,8 @@ function ChatInput({ onSendMessage }: ChatInputProps) {
       handleSubmit(e);
     }
   };
+  
+  if (!isVisible) return null; // FIXED: Changed from isVisible to !isVisible
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-bg border-t border-border sm:ml-72 md:ml-80 lg:ml-[20%]">
@@ -30,7 +33,9 @@ function ChatInput({ onSendMessage }: ChatInputProps) {
           {/* Input Container */}
           <div className="flex items-end bg-input border border-border rounded-lg focus-within:border-accent transition">
             
+             
             {/* Attach Button */}
+            {/* 
             <button
               type="button"
               className="p-3 text-secondary hover:text-text-muted transition shrink-0"
@@ -38,22 +43,23 @@ function ChatInput({ onSendMessage }: ChatInputProps) {
             >
               <IoAttach className="w-5 h-5" />
             </button>
-
+              */}
             {/* Text Area */}
             <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Message AI..."
+              placeholder="Message Your Interviewer"
               rows={1}
               className="flex-1 bg-transparent text-text placeholder:text-text-muted px-2 py-3 resize-none outline-none max-h-32 overflow-y-auto"
               style={{
                 minHeight: "44px",
-                maxHeight: "128px",
+                maxHeight: "128px", 
               }}
             />
 
             {/* Voice Input Button */}
+            {/* 
             <button
               type="button"
               className="p-3 text-secondary hover:text-text-muted transition shrink-0"
@@ -61,11 +67,12 @@ function ChatInput({ onSendMessage }: ChatInputProps) {
             >
               <IoMic className="w-5 h-5" />
             </button>
+              */}
 
             {/* Send Button */}
             <button
               type="submit"
-              disabled={!message.trim()}
+              disabled={messageText.trim().length < 1}
               className="p-3 text-accent hover:text-accent/80 transition shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
               title="Send message"
             >

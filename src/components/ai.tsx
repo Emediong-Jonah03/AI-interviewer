@@ -13,7 +13,7 @@ function AIMessage({ text }: AIMessageProps) {
       </div>
       
       {/* Message Content */}
-      <div className="flex-1 px-4 py-3 rounded-lg bg-secondary border border-border">
+      <div className="flex-1 px-4 py-5 rounded-lg bg-surface border border-border">
         <p className="text-sm leading-relaxed text-text-assistant">
           {text}
         </p>
