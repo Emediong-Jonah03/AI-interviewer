@@ -1,9 +1,9 @@
 import axios from "axios";
-import dotenv from "dotenv";
 
-dotenv.config();
-
-const API_URL = `${process.env.API_URL}api` || "http://localhost:8000/api";
+// Use Vite environment variables
+const API_URL = import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}api`
+    : "http://localhost:8000/api";
 
 const api = axios.create({
     baseURL: API_URL,
@@ -41,17 +41,14 @@ api.interceptors.response.use(
             }
 
             try {
-                const res = await axios.post(
-                    `${API_URL}/auth/token/refresh/`,
-                    { refresh: refreshToken }
-                );
+                const res = await axios.post(`${API_URL}/auth/token/refresh/`, {
+                    refresh: refreshToken,
+                });
 
                 const newAccess = res.data.access;
-
                 localStorage.setItem("access", newAccess);
 
-                originalRequest.headers.Authorization =
-                    `Bearer ${newAccess}`;
+                originalRequest.headers.Authorization = `Bearer ${newAccess}`;
 
                 return api(originalRequest);
             } catch (refreshError) {
