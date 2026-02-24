@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 function Login() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { login } = useAuth();
+    const { login, resendVerificationEmail } = useAuth();
 
     const [formData, setFormData] = useState({
         email: "",
@@ -17,6 +17,8 @@ function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(false);
+    const [resendMessage, setResendMessage] = useState("");
+    const [isResending, setIsResending] = useState(false);
 
     // Get message from signup redirect
     const signupMessage = location.state?.message;
@@ -45,6 +47,7 @@ function Login() {
 
         setIsLoading(true);
         setErrors({});
+        setResendMessage("");
 
         try {
             await login(formData.email, formData.password);
@@ -65,6 +68,26 @@ function Login() {
         }
     };
 
+    const handleResendVerification = async () => {
+        if (!formData.email.trim()) {
+            setErrors(prev => ({ ...prev, email: "Enter your email to resend verification." }));
+            return;
+        }
+
+        setIsResending(true);
+        setResendMessage("");
+
+        try {
+            const message = await resendVerificationEmail(formData.email);
+            setResendMessage(message);
+        } catch (error: any) {
+            const message = error?.error || error?.email?.[0] || "Unable to resend verification email.";
+            setErrors(prev => ({ ...prev, submit: message }));
+        } finally {
+            setIsResending(false);
+        }
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
@@ -74,6 +97,10 @@ function Login() {
 
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: "" }));
+        }
+
+        if (name === 'email' && resendMessage) {
+            setResendMessage("");
         }
     };
 
@@ -104,6 +131,12 @@ function Login() {
                         {errors.submit && (
                             <div className="bg-error/10 border border-error text-error text-sm p-3 rounded-lg">
                                 {errors.submit}
+                            </div>
+                        )}
+
+                        {resendMessage && (
+                            <div className="bg-green-500/10 border border-green-500 text-green-500 text-sm p-3 rounded-lg">
+                                {resendMessage}
                             </div>
                         )}
 
@@ -199,6 +232,7 @@ function Login() {
                                 "Sign In"
                             )}
                         </button>
+
                     </form>
 
                     {/* Sign Up Link */}
