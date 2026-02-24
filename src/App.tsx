@@ -1,7 +1,13 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { useAuth } from "./context/AuthContext";
+
 import About from "./page/About";
+import Login from "./auth/Login";
+import SignUp from "./auth/Signup";
 import Navigation from "./components/navigation/navigation";
-import Home from "./page/Home";
+import Dashboard from "./page/Dashboard";
 import ChatInput from "./components/chatInput";
 import UserMessage from "./components/user";
 import AIMessage from "./components/ai";
@@ -20,14 +26,15 @@ export interface ChatSession {
   createdAt: Date;
 }
 
-function App() {
+// Create a wrapper component for the main app
+function MainApp() {
+  const { isAuthenticated } = useAuth();
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [nextSessionId, setNextSessionId] = useState(1);
   const [nextMessageId, setNextMessageId] = useState(1);
   const [interviewStarted, setInterviewStarted] = useState(false);
 
-  // Get current session's messages
   const currentMessages = chatSessions.find(
     session => session.id === currentSessionId
   )?.messages || [];
@@ -48,11 +55,10 @@ function App() {
           : session
       )
     );
-    
+
     const currentMessageId = nextMessageId;
     setNextMessageId(prev => prev + 1);
 
-    // Simulate AI response (replace with actual API call)
     setTimeout(() => {
       const aiResponse: Message = {
         id: currentMessageId + 1,
@@ -72,7 +78,6 @@ function App() {
   };
 
   const startInterview = () => {
-    // Create a new chat session
     const newSession: ChatSession = {
       id: nextSessionId,
       title: `Interview ${nextSessionId}`,
@@ -104,20 +109,44 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <main className="min-h-screen bg-bg">
-        <Navigation
-          chatSessions={chatSessions}
-          currentSessionId={currentSessionId}
-          onNewChat={handleNewChat}
-          onSelectChat={handleSelectChat}
-        />
+    <Routes>
+      {/* Public Routes */}
+      <Route
+        path="/signup"
+        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignUp />}
+      />
 
-        <Routes>
-          <Route path="/" element={
-            <>
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
+      />
+
+      {/* Root redirect */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      {/* Protected Routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <main className="min-h-screen bg-bg">
+              <Navigation
+                chatSessions={chatSessions}
+                currentSessionId={currentSessionId}
+                onNewChat={handleNewChat}
+                onSelectChat={handleSelectChat}
+              />
               <section className="sm:ml-72 md:ml-80 lg:ml-[20%] p-6 pt-20 sm:pt-6 pb-32">
-                <Home start={startInterview} isVisible={!interviewStarted} />
+                <Dashboard startInterview={startInterview} isVisible={!interviewStarted} />
                 <div className="max-w-4xl mx-auto space-y-4">
                   {currentMessages.map((msg) =>
                     msg.type === "user" ? (
@@ -129,11 +158,41 @@ function App() {
                 </div>
               </section>
               <ChatInput onSendMessage={handleSendMessage} isVisible={interviewStarted} />
-            </>
-          } />
-          <Route path="/about" element={<About />} />
-        </Routes>
-      </main>
+            </main>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/about"
+        element={
+          <ProtectedRoute>
+            <About />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Catch all - redirect based on auth status */}
+      <Route
+        path="*"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
     </BrowserRouter>
   );
 }
