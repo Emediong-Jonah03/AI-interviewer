@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { IoFlash, IoMoon, IoClose } from "react-icons/io5";
+import { IoMoon, IoClose } from "react-icons/io5";
 import { GoSignOut } from "react-icons/go";
 import { GiHamburgerMenu, GiSun } from "react-icons/gi";
 import type { ChatSession } from "../../App";
