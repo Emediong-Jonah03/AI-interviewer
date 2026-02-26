@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { lazy } from "react";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
@@ -109,7 +109,10 @@ function MainApp() {
     setInterviewStarted(true);
   };
 
+
+
   return (
+
     <Routes>
       {/* Public Routes */}
 
