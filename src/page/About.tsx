@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { IoLogoLinkedin, IoLogoGithub, IoLogoTwitter, IoLogoNodejs, IoLogoReact } from "react-icons/io5";
+import { BiLogoTypescript } from "react-icons/bi";
+import { BiLogoPostgresql } from "react-icons/bi";
 import LandingNav from "../components/navigation/LandingNav";
+import { FaClock } from "react-icons/fa6";
+import { BiConfused } from "react-icons/bi";
+import { BsFillEmojiAstonishedFill } from "react-icons/bs";
 import { RiTailwindCssFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import Emediong from "../assets/Emediong.jpeg"
@@ -95,25 +100,13 @@ function About() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-in-up delay-300">
               <Link
-                to="/login"
+                to="/signup"
                 className="group relative px-8 py-4 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-primary/25 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   Start Practicing Now
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
                 </span>
-                <div className="absolute inset-0 bg-linear-r from-primary to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </Link>
-            </div>
-
-            <div className="flex items-center justify-center gap-8 pt-8 text-sm text-slate-500 animate-fade-in-up delay-500">
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-400 to-blue-600  animate-float"></div>
-                  <div className="w-8 h-8 rounded-full bg-linear-to-br from-purple-400 to-purple-600  animate-float delay-200"></div>
-                  <div className="w-8 h-8 rounded-full bg-linear-to-br from-pink-400 to-pink-600  animate-float delay-300"></div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -138,19 +131,19 @@ function About() {
           <div className="grid sm:grid-cols-3 gap-6">
             {[
               {
-                emoji: "😰",
+                emoji: <BsFillEmojiAstonishedFill />,
                 title: "Interview anxiety",
                 desc: "Knowing the answer but fumbling to explain it clearly under pressure",
                 delay: "delay-100"
               },
               {
-                emoji: "🤷‍♂️",
+                emoji: <BiConfused />,
                 title: "No one to practice with",
                 desc: "Friends are busy. Mock interview services are expensive. You're on your own",
                 delay: "delay-200"
               },
               {
-                emoji: "⏰",
+                emoji: <FaClock />,
                 title: "Time pressure",
                 desc: "Interviews are coming up fast and you need practice NOW, not next week",
                 delay: "delay-300"
@@ -312,11 +305,11 @@ function About() {
 
           <div className="flex flex-wrap justify-center gap-4">
             {[
-              { name: "React", icon: <IoLogoReact className="text-2xl text-primary w-10 h-10" /> },
-              { name: "TypeScript", icon: <IoLogoNodejs className="text-2xl text-primary w-10 h-10" /> },
-              { name: "Tailwind CSS", icon: <RiTailwindCssFill className="text-2xl text-primary w-10 h-10" /> },
-              { name: "Node.js", icon: <IoLogoNodejs className="text-2xl text-primary w-10 h-10" /> },
-              { name: "PostgreSQL", icon: <IoLogoNodejs className="text-2xl text-primary w-10 h-10" /> },
+              { name: "React", icon: <IoLogoReact className="text-2xl text-primary-500 w-10 h-10" /> },
+              { name: "TypeScript", icon: <BiLogoTypescript className="text-2xl text-primary-500 w-10 h-10" /> },
+              { name: "Tailwind CSS", icon: <RiTailwindCssFill className="text-2xl text-primary-500 w-10 h-10" /> },
+              { name: "Node.js", icon: <IoLogoNodejs className="text-2xl text-primary-500 w-10 h-10" /> },
+              { name: "PostgreSQL", icon: <BiLogoPostgresql className="text-2xl text-primary-500 w-10 h-10" /> },
             ].map((tech, idx) => (
               <div
                 key={tech.name}

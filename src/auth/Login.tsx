@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { IoFlash, IoMail, IoLockClosed, IoEye, IoEyeOff } from "react-icons/io5";
+import { IoEye, IoEyeOff } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
 function Login() {
@@ -88,9 +88,7 @@ function Login() {
             <div className="w-full max-w-md">
                 {/* Logo and Header */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-accent rounded-2xl mb-4">
-                        <IoFlash className="w-8 h-8 text-white" />
-                    </div>
+
                     <h1 className="text-3xl font-bold text-text mb-2">Welcome Back</h1>
                     <p className="text-text-muted">Sign in to continue your interviews</p>
                 </div>
@@ -125,7 +123,6 @@ function Login() {
                                 Email Address
                             </label>
                             <div className="relative">
-                                <IoMail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                                 <input
                                     type="email"
                                     id="email"
@@ -149,7 +146,6 @@ function Login() {
                                 Password
                             </label>
                             <div className="relative">
-                                <IoLockClosed className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     id="password"
