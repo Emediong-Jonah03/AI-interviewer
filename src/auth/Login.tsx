@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContextComponent";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
@@ -51,11 +51,11 @@ function Login() {
         try {
             await login(formData.email, formData.password);
             navigate('/dashboard');
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Login error:', error);
 
             // Extract the error message
-            const errorMessage = error.message || error.toString();
+            const errorMessage = (error as Error).message || String(error);
 
             if (errorMessage.includes('Invalid')) {
                 setErrors({ submit: 'Invalid email or password.' });
@@ -104,12 +104,6 @@ function Login() {
 
                     {/* Login Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Show general error */}
-                        {errors.submit && (
-                            <div className="bg-error/10 border border-error text-error text-sm p-3 rounded-lg">
-                                {errors.submit}
-                            </div>
-                        )}
 
                         {resendMessage && (
                             <div className="bg-green-500/10 border border-green-500 text-green-500 text-sm p-3 rounded-lg">

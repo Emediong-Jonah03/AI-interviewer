@@ -4,10 +4,8 @@ import { GoSignOut } from "react-icons/go";
 import { GiHamburgerMenu, GiSun } from "react-icons/gi";
 import type { ChatSession } from "../../App";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import Theme from "../Theme";
-
-const { theme, toggleTheme } = Theme()
+import { useAuth } from "../../context/AuthContextComponent";
+import useTheme from "../Theme";
 
 interface NavigationProps {
   chatSessions: ChatSession[];
@@ -22,6 +20,7 @@ export default function Navigation({
   onNewChat = () => { },
   onSelectChat = () => { },
 }: NavigationProps) {
+  const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 

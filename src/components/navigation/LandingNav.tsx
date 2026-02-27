@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { IoSunny, IoMoon } from "react-icons/io5"
-import Theme from "../Theme";
+import useTheme from "../Theme";
 
 function LandingNav() {
-    const { theme, toggleTheme } = Theme()
+    const { theme, toggleTheme } = useTheme()
+
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

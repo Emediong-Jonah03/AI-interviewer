@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContextComponent";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
@@ -37,6 +37,8 @@ function SignUp() {
             newErrors.password = "Password is required";
         } else if (formData.password.length < 8) {
             newErrors.password = "Password must be at least 8 characters";
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])/.test(formData.password)) {
+            newErrors.password = "Password must contain uppercase, lowercase, a number, and a special character";
         }
 
         if (formData.password !== formData.confirmPassword) {
@@ -70,14 +72,17 @@ function SignUp() {
                 });
             }, 3000);
 
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as Record<string, string | string[]>;
             // Handle backend validation errors
-            if (error.email) {
-                setErrors({ email: Array.isArray(error.email) ? error.email[0] : error.email });
-            } else if (error.username) {
-                setErrors({ username: Array.isArray(error.username) ? error.username[0] : error.username });
-            } else if (error.password) {
-                setErrors({ password: Array.isArray(error.password) ? error.password[0] : error.password });
+            if (err.email) {
+                setErrors({ email: Array.isArray(err.email) ? err.email[0] : err.email });
+            } else if (err.username) {
+                setErrors({ username: Array.isArray(err.username) ? err.username[0] : err.username });
+            } else if (err.password) {
+                setErrors({ password: Array.isArray(err.password) ? err.password[0] : err.password });
+            } else if (err.message) {
+                setErrors({ submit: String(err.message) });
             } else {
                 setErrors({ submit: 'Sign up failed. Please try again.' });
             }
@@ -198,6 +203,9 @@ function SignUp() {
                                     {showPassword ? <IoEyeOff className="w-5 h-5" /> : <IoEye className="w-5 h-5" />}
                                 </button>
                             </div>
+                            <p className="text-xs text-text-muted mt-1 px-1">
+                                Must be 8+ characters with uppercase, lowercase, number, and special character.
+                            </p>
                             {errors.password && (
                                 <p className="text-error text-sm mt-1">{errors.password}</p>
                             )}

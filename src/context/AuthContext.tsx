@@ -1,41 +1,8 @@
-import { createContext, useContext, useState } from "react";
+import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import api from "../api/axios";
-
-interface User {
-    id: string;
-    username: string;
-    email: string;
-    profile_picture?: string;
-    is_email_verified: boolean;
-}
-
-interface AuthContextType {
-    user: User | null;
-    isLoading: boolean;
-    isAuthenticated: boolean;
-    login: (email: string, password: string) => Promise<void>;
-    signup: (
-        username: string,
-        email: string,
-        password: string
-    ) => Promise<string>;
-
-    logout: () => Promise<void>;
-    deleteAccount: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-
-    if (!context) {
-        throw new Error("useAuth must be used within AuthProvider");
-    }
-
-    return context;
-};
+import type { User } from "../types/user";
+import { AuthContext, type AuthContextType } from "./AuthContextComponent";
 
 interface Props {
     children: ReactNode;
@@ -45,36 +12,22 @@ export const AuthProvider = ({ children }: Props) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Load user on startup
-    /*useEffect(() => {
-        const loadUser = async () => {
-            const storedUser = localStorage.getItem("user");
+    // INITIAL CHECK
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        const token = localStorage.getItem("access");
 
-            if (storedUser) {
-                setUser(JSON.parse(storedUser));
-            }
-
-            const token = localStorage.getItem("access");
-
-            if (!token) {
-                setIsLoading(false);
-                return;
-            }
-
+        if (storedUser && token) {
             try {
-                const res = await api.get("/auth/m/");
-                setUser(res.data);
-                localStorage.setItem("user", JSON.stringify(res.data));
-            } catch {
-                localStorage.clear();
-                setUser(null);
-            } finally {
-                setIsLoading(false);
+                setUser(JSON.parse(storedUser));
+            } catch (err) {
+                console.error("Failed to parse stored user", err);
+                localStorage.removeItem("user");
+                localStorage.removeItem("access");
             }
-        };
-
-        loadUser();
-    }, []);*/
+        }
+        setIsLoading(false);
+    }, []);
 
     // LOGIN
     const login = async (email: string, password: string) => {
@@ -87,15 +40,21 @@ export const AuthProvider = ({ children }: Props) => {
             });
 
             const userData: User = res.data.user;
+            const accessToken = res.data.tokens?.access || res.data.accessToken;
 
-            localStorage.setItem("access", res.data.tokens.access);
-            localStorage.setItem("refresh", res.data.tokens.refresh);
+            if (!accessToken) {
+                console.error("Login response missing access token:", res.data);
+                throw new Error("Invalid server response: Missing access token");
+            }
+
+            localStorage.setItem("access", accessToken);
             localStorage.setItem("user", JSON.stringify(userData));
 
             setUser(userData);
-        } catch (error: any) {
-            if (error.response?.data?.error) {
-                throw new Error(error.response.data.error);
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { error?: string } } };
+            if (err.response?.data?.error) {
+                throw new Error(err.response.data.error);
             }
             throw error;
         } finally {
@@ -105,7 +64,7 @@ export const AuthProvider = ({ children }: Props) => {
 
     // SIGNUP
     const signup = async (
-        username: string,
+        name: string,
         email: string,
         password: string
     ): Promise<string> => {
@@ -113,19 +72,19 @@ export const AuthProvider = ({ children }: Props) => {
 
         try {
             const res = await api.post("/v1/auth/register", {
-                username,
+                name,
                 email,
                 password,
-                confirm_password: password,
             });
 
             return (
                 res.data.message ||
                 "Account created successfully. Please sign in."
             );
-        } catch (error: any) {
-            if (error.response?.data) {
-                throw error.response.data;
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: string | Record<string, unknown> } };
+            if (err.response?.data) {
+                throw err.response.data;
             }
             throw error;
         } finally {
@@ -133,33 +92,10 @@ export const AuthProvider = ({ children }: Props) => {
         }
     };
 
-    // RESEND VERIFICATION EMAIL
-    /* const resendVerificationEmail = async (
-         email: string
-     ): Promise<string> => {
-         try {
-             const res = await api.post("/auth/resend-verification/", {
-                 email,
-             });
- 
-             return res.data.message || "Verification email sent.";
-         } catch (error: any) {
-             if (error.response?.data?.error) {
-                 throw new Error(error.response.data.error);
-             }
-             throw error;
-         }
-     };
-     */
-
     // LOGOUT
     const logout = async () => {
         try {
-            const refresh = localStorage.getItem("refresh");
-
-            if (refresh) {
-                await api.post("/v1/auth/logout", { refresh });
-            }
+            await api.post("/v1/auth/logout");
         } catch {
             // backend failure shouldn't block logout
         } finally {
@@ -171,14 +107,10 @@ export const AuthProvider = ({ children }: Props) => {
 
     // DELETE ACCOUNT
     const deleteAccount = async () => {
-        try {
-            await api.delete("/v1/auth/delete-account/");
-            localStorage.clear();
-            setUser(null);
-            window.location.href = "/signup";
-        } catch (error) {
-            throw error;
-        }
+        await api.delete("/v1/auth/delete-account/");
+        localStorage.clear();
+        setUser(null);
+        window.location.href = "/signup";
     };
 
     const value: AuthContextType = {
@@ -187,7 +119,6 @@ export const AuthProvider = ({ children }: Props) => {
         isAuthenticated: !!user,
         login,
         signup,
-        //resendVerificationEmail,
         logout,
         deleteAccount,
     };

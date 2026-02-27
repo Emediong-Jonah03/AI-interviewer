@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const Theme = () => {
+const useTheme = () => {
     const [theme, setTheme] = useState("light");
 
     // Apply theme with smooth transition
@@ -14,4 +14,4 @@ const Theme = () => {
 
     return { theme, toggleTheme }
 }
-export default Theme
+export default useTheme

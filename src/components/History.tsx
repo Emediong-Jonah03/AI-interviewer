@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useMemo } from "react"
 import type { Message } from "../App";
 
 export interface History {
@@ -7,27 +7,23 @@ export interface History {
 }
 
 export interface NavigationProps {
-  messageHistory: Message[],  
-  started: boolean  
+  messageHistory: Message[],
+  started: boolean
 }
 
-function HistoryPage({messageHistory, started}: NavigationProps) {
-  const [recent, setRecent] = useState<History[]>([])
-
-  useEffect(() => {
+function HistoryPage({ messageHistory, started }: NavigationProps) {
+  const recent = useMemo(() => {
     if (started && messageHistory.length > 0) {
-    
-      const userMessages = messageHistory
+      return messageHistory
         .filter(msg => msg.type === "user")
         .map(msg => ({
           id: msg.id,
           message: msg.text
         }));
-      
-      setRecent(userMessages);
     }
+    return [];
   }, [messageHistory, started]);
-    
+
   return recent;
 }
 
